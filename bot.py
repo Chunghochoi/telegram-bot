@@ -91,7 +91,6 @@ def build_controller(user_id: int, bot, chat_id: int) -> Controller:
 
     @controller.action(
         "Take a screenshot of the current page and send it to the user on Telegram to manually solve a CAPTCHA or verification challenge. Wait for the user reply before continuing.",
-        requires_browser=True,
     )
     async def ask_user_captcha(reason: str, browser: BrowserContext) -> ActionResult:
         page = await browser.get_current_page()
