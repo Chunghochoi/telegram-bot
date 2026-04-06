@@ -26,6 +26,7 @@ logger = logging.getLogger(__name__)
 TELEGRAM_TOKEN = os.environ["TELEGRAM_BOT_TOKEN"]
 OPENROUTER_API_KEY = os.environ["OPENROUTER_API_KEY"]
 OPENROUTER_MODEL = os.environ.get("OPENROUTER_MODEL", "openai/gpt-4o")
+BROWSER_CDP_URL = os.environ.get("BROWSER_CDP_URL", "")  # e.g. wss://chrome.browserless.io?token=xxx
 
 PREFS_FILE = Path(__file__).parent / "user_prefs.json"
 
@@ -72,6 +73,11 @@ def build_llm() -> ChatOpenAI:
 
 
 def build_browser() -> Browser:
+    if BROWSER_CDP_URL:
+        logger.info("Kết nối trình duyệt từ xa: %s", BROWSER_CDP_URL[:40] + "...")
+        return Browser(config=BrowserConfig(cdp_url=BROWSER_CDP_URL))
+
+    logger.info("Dùng trình duyệt cục bộ (khuyến nghị dùng BROWSER_CDP_URL trên Railway)")
     args = [
         "--no-sandbox",
         "--disable-dev-shm-usage",
@@ -80,18 +86,12 @@ def build_browser() -> Browser:
         "--disable-extensions",
         "--disable-background-networking",
         "--disable-background-timer-throttling",
-        "--disable-backgrounding-occluded-windows",
         "--disable-breakpad",
-        "--disable-client-side-phishing-detection",
         "--disable-default-apps",
         "--disable-hang-monitor",
-        "--disable-popup-blocking",
-        "--disable-prompt-on-repost",
         "--disable-sync",
         "--disable-translate",
-        "--metrics-recording-only",
         "--no-first-run",
-        "--safebrowsing-disable-auto-update",
         "--mute-audio",
         "--window-size=1280,720",
     ]
