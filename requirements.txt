@@ -3,3 +3,7 @@ browser-use==0.1.40
 langchain-openai==0.2.14
 langchain==0.3.14
 openai==1.57.4
+<<<<<<< HEAD
+=======
+playwright==1.42.0
+>>>>>>> 6f07c3f14263c1b12a79bc49d3bc4304512ea031
