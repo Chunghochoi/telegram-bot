@@ -3,7 +3,7 @@ import asyncio
 import logging
 import json
 from pathlib import Path
-from telegram import Update, InputFile
+from telegram import Update
 from telegram.ext import (
     Application,
     CommandHandler,
@@ -27,7 +27,6 @@ TELEGRAM_TOKEN = os.environ["TELEGRAM_BOT_TOKEN"]
 OPENROUTER_API_KEY = os.environ["OPENROUTER_API_KEY"]
 OPENROUTER_MODEL = os.environ.get("OPENROUTER_MODEL", "openai/gpt-4o")
 
-EXT_DIR = Path(__file__).parent / "extensions" / "rektCaptcha"
 PREFS_FILE = Path(__file__).parent / "user_prefs.json"
 
 DEFAULT_TEMP_MAIL = "https://temp-mail.org"
@@ -77,16 +76,25 @@ def build_browser() -> Browser:
         "--no-sandbox",
         "--disable-dev-shm-usage",
         "--disable-gpu",
+        "--disable-software-rasterizer",
+        "--disable-extensions",
+        "--disable-background-networking",
+        "--disable-background-timer-throttling",
+        "--disable-backgrounding-occluded-windows",
+        "--disable-breakpad",
+        "--disable-client-side-phishing-detection",
+        "--disable-default-apps",
+        "--disable-hang-monitor",
+        "--disable-popup-blocking",
+        "--disable-prompt-on-repost",
+        "--disable-sync",
+        "--disable-translate",
+        "--metrics-recording-only",
+        "--no-first-run",
+        "--safebrowsing-disable-auto-update",
+        "--mute-audio",
+        "--window-size=1280,720",
     ]
-    if EXT_DIR.exists():
-        ext_path = str(EXT_DIR.resolve())
-        args += [
-            f"--load-extension={ext_path}",
-            f"--disable-extensions-except={ext_path}",
-        ]
-        logger.info("rektCaptcha extension loaded from %s", ext_path)
-    else:
-        logger.warning("Extension not found at %s, running without reCAPTCHA solver", EXT_DIR)
     return Browser(config=BrowserConfig(headless=True, extra_chromium_args=args))
 
 
