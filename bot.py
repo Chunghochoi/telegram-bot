@@ -73,7 +73,11 @@ def build_llm() -> ChatOpenAI:
 
 
 def build_browser() -> Browser:
-    args = []
+    args = [
+        "--no-sandbox",
+        "--disable-dev-shm-usage",
+        "--disable-gpu",
+    ]
     if EXT_DIR.exists():
         ext_path = str(EXT_DIR.resolve())
         args += [
@@ -83,7 +87,7 @@ def build_browser() -> Browser:
         logger.info("rektCaptcha extension loaded from %s", ext_path)
     else:
         logger.warning("Extension not found at %s, running without reCAPTCHA solver", EXT_DIR)
-    return Browser(config=BrowserConfig(extra_chromium_args=args))
+    return Browser(config=BrowserConfig(headless=True, extra_chromium_args=args))
 
 
 def build_controller(user_id: int, bot, chat_id: int) -> Controller:
@@ -266,7 +270,15 @@ async def task_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> No
 
         await browser.close()
 
-        result_text = str(result) if result else "Hoàn thành nhưng không có kết quả trả về."
+        result_text = None
+        if result is not None:
+            if hasattr(result, "final_result"):
+                result_text = result.final_result()
+            if not result_text and hasattr(result, "all_results") and result.all_results:
+                result_text = str(result.all_results[-1])
+            if not result_text:
+                result_text = str(result)
+        result_text = result_text or "Hoàn thành nhưng không có kết quả trả về."
         if len(result_text) > 4000:
             result_text = result_text[:4000] + "\n...(kết quả bị cắt bớt)"
 
